@@ -20,6 +20,7 @@ use crate::cli::{Cli, Subcommand};
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
 use sc_service::PartialComponents;
 use node_template_runtime::Block;
+use log::info;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {

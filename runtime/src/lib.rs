@@ -24,11 +24,8 @@ use sp_version::RuntimeVersion;
 use sp_version::NativeVersion;
 
 use pallet_evm::{
-	IdentityAddressMapping, EnsureAddressSame,EnsureAddressTruncated,
-	EnsureAddressNever, FeeCalculator, AddressMapping
+	EnsureAddressTruncated, HashedAddressMapping,
 };
-
-
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
@@ -44,10 +41,6 @@ pub use frame_support::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
 	},
 };
-
-pub use pallet_evm::Account as EVMAccount;
-
-pub use pallet_evm::HashedAddressMapping as HashedAddressMapping;
 
 /// Import the template pallet.
 pub use pallet_template;
@@ -79,7 +72,6 @@ pub type Hash = sp_core::H256;
 /// Digest item type.
 pub type DigestItem = generic::DigestItem<Hash>;
 
-pub struct FixedGasPrice;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -276,26 +268,25 @@ impl pallet_sudo::Trait for Runtime {
 }
 
 
-impl FeeCalculator for FixedGasPrice {
-	fn min_gas_price() -> U256 {
-		// Gas price is always one token per gas.
-		1.into()
-	}
-}
-
 parameter_types! {
-	pub const ChainId: u64 = 4;
+    pub const RinkebyChainId: u64 = 4;
 }
 
 impl pallet_evm::Trait for Runtime {
-	type FeeCalculator = FixedGasPrice;
+	type FeeCalculator = ();
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
 	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
 	type Currency = Balances;
 	type Event = Event;
 	type Precompiles = ();
-	type ChainId = ChainId;
+	type ChainId = RinkebyChainId;
+}
+
+impl pallet_ethereum::Trait for Runtime {
+	type Event = Event;
+	// This means we will never record a block author in the Ethereum-formatted blocks
+	type FindAuthor = ();
 }
 
 /// Configure the template pallet in pallets/template.
@@ -317,6 +308,7 @@ construct_runtime!(
 		Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
 		Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
 		EVM: pallet_evm::{Module, Call, Storage, Config, Event<T>},
+		Ethereum: pallet_ethereum::{Module, Call, Storage, Event, Config, ValidateUnsigned},
 		TransactionPayment: pallet_transaction_payment::{Module, Storage},
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		// Include the custom logic from the template pallet in the runtime.
