@@ -31,6 +31,9 @@ frame-benchmarking = '2.0.0'
 frame-benchmarking-cli = '2.0.0'
 pallet-transaction-payment-rpc = '2.0.0'
 pallet-evm = { default-features = false, version = '2.0.0' }
+frontier-consensus = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
+frontier-rpc = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
+frontier-rpc-primitives = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
 sc-basic-authorship = '0.8.0'
 sc-cli = { features = ['wasmtime'], version = '0.8.0' }
 sc-client-api = '2.0.0'
