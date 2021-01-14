@@ -19,9 +19,11 @@ targets = ['x86_64-unknown-linux-gnu']
 substrate-build-script-utils = '2.0.0'
 
 [dependencies]
-jsonrpc-core = '15.0.0'
-structopt = '0.3.8'
+futures = "0.3.4"
 log = "0.4.8"
+structopt = '0.3.8'
+jsonrpc-core = '15.0.0'
+jsonrpc-pubsub = "15.0.0"
 
 # local dependencies
 node-template-runtime = { path = '../runtime', version = '2.0.0' }
@@ -29,33 +31,39 @@ node-template-runtime = { path = '../runtime', version = '2.0.0' }
 # Substrate dependencies
 frame-benchmarking = '2.0.0'
 frame-benchmarking-cli = '2.0.0'
-pallet-transaction-payment-rpc = '2.0.0'
-pallet-evm = { default-features = false, version = '2.0.0' }
-frontier-consensus = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
-frontier-rpc = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
-frontier-rpc-primitives = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2' }
-sc-basic-authorship = '0.8.0'
-sc-cli = { features = ['wasmtime'], version = '0.8.0' }
-sc-client-api = '2.0.0'
-sc-consensus = '0.8.0'
-sc-consensus-aura = '0.8.0'
-sc-executor = { features = ['wasmtime'], version = '0.8.0' }
-sc-finality-grandpa = '0.8.0'
-sc-rpc = '2.0.0'
-sc-rpc-api = '0.8.0'
-sc-service = { features = ['wasmtime'], version = '0.8.0' }
-sc-transaction-pool = '2.0.0'
+
 sp-api = '2.0.0'
-sp-block-builder = '2.0.0'
 sp-blockchain = '2.0.0'
-sp-consensus = '0.8.0'
-sp-consensus-aura = '0.8.0'
-sp-core = '2.0.0'
-sp-finality-grandpa = '2.0.0'
-sp-inherents = '2.0.0'
-sp-runtime = '2.0.0'
-sp-transaction-pool = '2.0.0'
+sc-rpc-api = '0.8.0'
+sc-rpc = '2.0.0'
 substrate-frame-rpc-system = '2.0.0'
+pallet-transaction-payment-rpc = '2.0.0'
+sc-cli = '0.8.0'
+sp-core = '2.0.0'
+sc-executor = '0.8.0'
+sc-service = '0.8.0'
+sp-inherents = '2.0.0'
+sc-transaction-pool = '2.0.0'
+sp-transaction-pool = '2.0.0'
+sc-network = "0.8.0"
+sc-consensus-aura = "0.8.0"
+sp-consensus-aura = "0.8.0"
+sc-consensus-manual-seal = "0.8.0"
+sp-consensus = "0.8.0"
+sc-consensus = "0.8.0"
+sp-timestamp = { version = "2.0.0", default-features = false }
+pallet-evm = { version = "2.0.0", default-features = false, package = "pallet-evm" }
+ethereum = { version = "0.1.0", package = "pallet-ethereum" }
+sc-finality-grandpa = "0.8.0"
+sp-finality-grandpa = "2.0.0"
+sc-client-api = '2.0.0'
+sp-runtime = '2.0.0'
+sc-basic-authorship = '0.8.0'
+sp-block-builder = '2.0.0'
+
+frontier-consensus = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2', version = "0.1.0"}
+frontier-rpc = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2',  version = "0.1.0" }
+frontier-rpc-primitives = { git = 'https://github.com/PureStake/frontier.git', branch = 'substrate-v2',  version = "0.1.0" }
 
 [features]
 default = []

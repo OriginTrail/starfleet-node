@@ -6,7 +6,11 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use sp_std::prelude::*;
+//use sp_std::prelude::*;
+
+use sp_std::{prelude::*, marker::PhantomData};
+use codec::{Encode, Decode};
+
 use sp_core::{U256, crypto::KeyTypeId, OpaqueMetadata, H160, H256};
 use sp_runtime::{
 	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
@@ -22,12 +26,12 @@ use pallet_grandpa::fg_primitives;
 use sp_version::RuntimeVersion;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
+use sp_core::crypto::Public;
 
 use pallet_evm::{
 	Account as EVMAccount, FeeCalculator, EnsureAddressTruncated, HashedAddressMapping,
 };
 
-use codec::{Encode, Decode};
 use frontier_rpc_primitives::TransactionStatus;
 
 // A few exports that help ease life for downstream crates.
@@ -38,11 +42,12 @@ pub use pallet_balances::Call as BalancesCall;
 pub use sp_runtime::{Permill, Perbill};
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
-	traits::{KeyOwnerProofSystem, Randomness},
+	traits::{KeyOwnerProofSystem, Randomness, FindAuthor},
 	weights::{
 		Weight, IdentityFee,
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
 	},
+	ConsensusEngineId
 };
 
 /// Import the template pallet.
@@ -270,26 +275,53 @@ impl pallet_sudo::Trait for Runtime {
 	type Call = Call;
 }
 
+pub struct FixedGasPrice;
+
+impl FeeCalculator for FixedGasPrice {
+	fn min_gas_price() -> U256 {
+		// Gas price is always one token per gas.
+		1.into()
+	}
+}
 
 parameter_types! {
-    pub const RinkebyChainId: u64 = 4;
+    pub const RinkebyChainId: u64 = 42;
 }
 
 impl pallet_evm::Trait for Runtime {
-	type FeeCalculator = ();
+	type FeeCalculator = FixedGasPrice;
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
 	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
 	type Currency = Balances;
 	type Event = Event;
-	type Precompiles = ();
+	type Precompiles = (
+		pallet_evm::precompiles::ECRecover,
+		pallet_evm::precompiles::Sha256,
+		pallet_evm::precompiles::Ripemd160,
+		pallet_evm::precompiles::Identity,
+	);
 	type ChainId = RinkebyChainId;
+}
+
+pub struct EthereumFindAuthor<F>(PhantomData<F>);
+impl<F: FindAuthor<u32>> FindAuthor<H160> for EthereumFindAuthor<F>
+{
+	fn find_author<'a, I>(digests: I) -> Option<H160> where
+		I: 'a + IntoIterator<Item=(ConsensusEngineId, &'a [u8])>
+	{
+		if let Some(author_index) = F::find_author(digests) {
+			let authority_id = Aura::authorities()[author_index as usize].clone();
+			return Some(H160::from_slice(&authority_id.to_raw_vec()[4..24]));
+		}
+		None
+	}
 }
 
 impl pallet_ethereum::Trait for Runtime {
 	type Event = Event;
 	// This means we will never record a block author in the Ethereum-formatted blocks
-	type FindAuthor = ();
+	type FindAuthor = EthereumFindAuthor<Aura>;
 }
 
 /// Configure the template pallet in pallets/template.
@@ -505,7 +537,7 @@ impl_runtime_apis! {
 		}
 
 		fn gas_price() -> U256 {
-			<Runtime as pallet_evm::Trait>::FeeCalculator::min_gas_price()
+			FixedGasPrice::min_gas_price()
 		}
 
 		fn account_code_at(address: H160) -> Vec<u8> {

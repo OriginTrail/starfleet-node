@@ -1,5 +1,16 @@
 use structopt::StructOpt;
-use sc_cli::RunCmd;
+
+#[allow(missing_docs)]
+#[derive(Debug, StructOpt)]
+pub struct RunCmd {
+	#[allow(missing_docs)]
+	#[structopt(flatten)]
+	pub base: sc_cli::RunCmd,
+
+	/// Force using Kusama native runtime.
+	#[structopt(long = "manual-seal")]
+	pub manual_seal: bool,
+}
 
 #[derive(Debug, StructOpt)]
 pub struct Cli {
