@@ -13,7 +13,7 @@ const deploy = async () => {
         {
             from: addressFrom,
             to: addressTo,
-            value: web3.utils.toWei('100', 'ether'),
+            value: web3.utils.toWei('1', 'ether'),
             gas: 21000,
         },
         privateKey
