@@ -16,6 +16,7 @@ module.exports = {
          gas: 3000000,
          gas_price: 30000,
          network_id: 42,
+         skipDryRun: true,
       },
    },
    // Solidity 0.7.0 Compiler
