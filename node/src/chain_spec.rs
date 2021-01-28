@@ -135,10 +135,9 @@ fn testnet_genesis(
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
 ) -> GenesisConfig {
-	let gerald_evm_account_id = H160::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap();
 	let mut evm_accounts = BTreeMap::new();
 	evm_accounts.insert(
-		gerald_evm_account_id,
+		H160::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap(),
 		pallet_evm::GenesisAccount {
 			nonce: 0.into(),
 			balance: U256::from(123456_123_000_000_000_000_000u128),
@@ -146,7 +145,17 @@ fn testnet_genesis(
 			code: vec![],
 		},
 	);
-	log::info!("Adding balance for {}", gerald_evm_account_id);
+	evm_accounts.insert(
+		H160::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
+		pallet_evm::GenesisAccount {
+			nonce: 0.into(),
+			balance: U256::from(123456_123_000_000_000_000_000u128),
+			storage: BTreeMap::new(),
+			code: vec![],
+		},
+	);
+
+
 
 	GenesisConfig {
 		frame_system: Some(SystemConfig {
