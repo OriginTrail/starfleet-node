@@ -10,5 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "web3": "^1.3.3"
+  },
+  "dependencies": {
+    "eth-lightwallet": "^4.0.0"
   }
 }
