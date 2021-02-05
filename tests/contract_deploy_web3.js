@@ -1,7 +1,7 @@
 const Web3 = require('web3');
 const web3 = new Web3('http://localhost:9933');
 
-const PATH_TO_NODE = '../../../../../ot-node';
+const PATH_TO_CONTRACTS = '../truffle/build/contracts';
 
 const wallet = '0x8097c3C354652CB1EEed3E5B65fBa2576470678A';
 const privateKey = 'e5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a';
@@ -10,8 +10,8 @@ const deployContract = async (contractName, inputTypes, inputValues) => {
   try {
       console.log(`Attempting to deploy ${contractName} contract`);
 
-      const abi = require(`${PATH_TO_NODE}/modules/Blockchain/Ethereum/build/contracts/${contractName}`).abi;
-      const bytecode = require(`${PATH_TO_NODE}/modules/Blockchain/Ethereum/build/contracts/${contractName}`).bytecode;
+      const abi = require(`${PATH_TO_CONTRACTS}/${contractName}`).abi;
+      const bytecode = require(`${PATH_TO_CONTRACTS}/${contractName}`).bytecode;
 
       const parameters = web3.eth.abi.encodeParameters(
           inputTypes,
