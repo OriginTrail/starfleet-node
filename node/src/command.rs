@@ -15,12 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{chain_spec, service};
+use crate::chain_spec;
 use crate::cli::{Cli, Subcommand};
+use crate::service;
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
 use sc_service::PartialComponents;
-use node_template_runtime::Block;
-use log::info;
+use crate::service::new_partial;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
@@ -75,7 +75,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config, cli.run.manual_seal)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, import_queue), task_manager))
 			})
 		},
@@ -83,7 +83,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config, cli.run.manual_seal)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, config.database), task_manager))
 			})
 		},
@@ -91,7 +91,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config, cli.run.manual_seal)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, config.chain_spec), task_manager))
 			})
 		},
@@ -99,7 +99,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config, cli.run.manual_seal)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, import_queue), task_manager))
 			})
 		},
@@ -111,25 +111,17 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, backend, ..}
-					= service::new_partial(&config, cli.run.manual_seal)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, backend), task_manager))
 			})
 		},
-		Some(Subcommand::Benchmark(cmd)) => {
-			if cfg!(feature = "runtime-benchmarks") {
-				let runner = cli.create_runner(cmd)?;
-
-				runner.sync_run(|config| cmd.run::<Block, service::Executor>(config))
-			} else {
-				Err("Benchmarking wasn't enabled when building the node. \
-				You can enable it with `--features runtime-benchmarks`.".into())
-			}
-		},
 		None => {
 			let runner = cli.create_runner(&cli.run.base)?;
-			runner.run_node_until_exit(|config| match config.role {
-				Role::Light => service::new_light(config),
-				_ => service::new_full(config, cli.run.manual_seal),
+			runner.run_node_until_exit(|config| async move {
+				match config.role {
+					Role::Light => service::new_light(config),
+					_ => service::new_full(config, cli.run.sealing, cli.run.enable_dev_signer),
+				}.map_err(sc_cli::Error::Service)
 			})
 		}
 	}
