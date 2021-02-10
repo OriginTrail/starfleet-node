@@ -13,7 +13,7 @@ use codec::{Encode, Decode};
 
 use sp_core::{U256, crypto::KeyTypeId, OpaqueMetadata, H160, H256};
 use sp_runtime::{
-	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
+	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys,
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
@@ -29,7 +29,8 @@ use sp_version::NativeVersion;
 use sp_core::crypto::Public;
 
 use pallet_evm::{
-	Account as EVMAccount, FeeCalculator, EnsureAddressTruncated, HashedAddressMapping,
+	Account as EVMAccount, EnsureAddressNever, EnsureAddressSame, FeeCalculator,
+	IdentityAddressMapping,
 };
 
 use frontier_rpc_primitives::TransactionStatus;
@@ -50,6 +51,8 @@ pub use frame_support::{
 	ConsensusEngineId
 };
 
+mod account;
+
 /// Import the template pallet.
 pub use pallet_template;
 use frame_system::Trait;
@@ -58,7 +61,7 @@ use frame_system::Trait;
 pub type BlockNumber = u32;
 
 /// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
-pub type Signature = MultiSignature;
+pub type Signature = account::EthereumSignature;
 
 /// Some way of identifying an account on the chain. We intentionally make it equivalent
 /// to the public key of our transaction signing scheme.
@@ -290,9 +293,9 @@ parameter_types! {
 
 impl pallet_evm::Trait for Runtime {
 	type FeeCalculator = FixedGasPrice;
-	type CallOrigin = EnsureAddressTruncated;
-	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	type CallOrigin = EnsureAddressSame;
+	type WithdrawOrigin = EnsureAddressNever<AccountId>;
+	type AddressMapping = IdentityAddressMapping;
 	type Currency = Balances;
 	type Event = Event;
 	type Precompiles = (
