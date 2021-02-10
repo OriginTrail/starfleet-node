@@ -1,4 +1,4 @@
-use sp_core::{Pair, Public, sr25519, U256, H160};
+use sp_core::{Pair, Public};
 use node_template_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, EVMConfig, EthereumConfig
@@ -56,13 +56,11 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				authority_keys_from_seed("Alice"),
 			],
 			// Sudo account
-			get_account_id_from_seed::<sr25519::Public>("Alice"),
+			AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
 			// Pre-funded accounts
 			vec![
-				get_account_id_from_seed::<sr25519::Public>("Alice"),
-				get_account_id_from_seed::<sr25519::Public>("Bob"),
-				get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+				AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
+				AccountId::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap()
 			],
 			true,
 		),
@@ -96,21 +94,11 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				authority_keys_from_seed("Bob"),
 			],
 			// Sudo account
-			get_account_id_from_seed::<sr25519::Public>("Alice"),
+			AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
 			// Pre-funded accounts
 			vec![
-				get_account_id_from_seed::<sr25519::Public>("Alice"),
-				get_account_id_from_seed::<sr25519::Public>("Bob"),
-				get_account_id_from_seed::<sr25519::Public>("Charlie"),
-				get_account_id_from_seed::<sr25519::Public>("Dave"),
-				get_account_id_from_seed::<sr25519::Public>("Eve"),
-				get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-				get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+				AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
+				AccountId::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap()
 			],
 			true,
 		),
@@ -135,28 +123,6 @@ fn testnet_genesis(
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
 ) -> GenesisConfig {
-	let mut evm_accounts = BTreeMap::new();
-	evm_accounts.insert(
-		H160::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap(),
-		pallet_evm::GenesisAccount {
-			nonce: 0.into(),
-			balance: U256::from(123456_123_000_000_000_000_000u128),
-			storage: BTreeMap::new(),
-			code: vec![],
-		},
-	);
-	evm_accounts.insert(
-		H160::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
-		pallet_evm::GenesisAccount {
-			nonce: 0.into(),
-			balance: U256::from(123456_123_000_000_000_000_000u128),
-			storage: BTreeMap::new(),
-			code: vec![],
-		},
-	);
-
-
-
 	GenesisConfig {
 		frame_system: Some(SystemConfig {
 			// Add Wasm runtime to storage.
@@ -178,7 +144,7 @@ fn testnet_genesis(
 			key: root_key,
 		}),
 		pallet_evm: Some(EVMConfig {
-			accounts: evm_accounts
+			accounts: BTreeMap::new()
 		}),
 		pallet_ethereum: Some(EthereumConfig {}),
 	}
