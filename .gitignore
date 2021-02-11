@@ -1,3 +1,5 @@
 **/target/
 .idea/
 **/*.rs.bk
+tests/**/node_modules
+Cargo.lock

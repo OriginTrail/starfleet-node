@@ -4,31 +4,9 @@ A FRAME-based starfleet node outlined in [OT-RFC-07](https://github.com/OriginTr
 
 ## Prerequests
  - Rust
- - Node v12 or higher
+ - Node 9.11.2
   
 ## Getting Started
-
-### Rust Setup
-
-Setup instructions for working with the [Rust](https://www.rust-lang.org/) programming language can
-be found at the
-[Substrate Developer Hub](https://substrate.dev/docs/en/knowledgebase/getting-started). Follow those
-steps to install [`rustup`](https://rustup.rs/) and configure the Rust toolchain to default to the
-latest stable version.
-
-### Makefile
-
-This project uses a [Makefile](Makefile) to document helpful commands and make it easier to execute
-them. Get started by running these [`make`](https://www.gnu.org/software/make/manual/make.html)
-targets:
-
-1. `make init` - Run the [init script](scripts/init.sh) to configure the Rust toolchain for
-   [WebAssembly compilation](https://substrate.dev/docs/en/knowledgebase/getting-started/#webassembly-compilation).
-1. `make run` - Build and launch this project in development mode.
-
-The init script and Makefile both specify the version of the
-[Rust nightly compiler](https://substrate.dev/docs/en/knowledgebase/getting-started/#rust-nightly-toolchain)
-that this project depends on.
 
 ### Build
 
@@ -43,15 +21,6 @@ When adding new dependencies, check that the new dependencies resolve correctly 
 
 ```sh
 SKIP_WASM_BUILD=1 cargo check -p node-template-runtime
-```
-
-### Embedded Docs
-
-Once the project has been built, the following command can be used to explore all parameters and
-subcommands:
-
-```sh
-./target/release/node-template -h
 ```
 
 ## Run
