@@ -60,7 +60,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			// Pre-funded accounts
 			vec![
 				AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
-				AccountId::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap()
+				AccountId::from_str("6be02d1d3665660d22ff9624b7be0551ee1ac91b").unwrap()
 			],
 			true,
 		),
@@ -98,7 +98,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 			// Pre-funded accounts
 			vec![
 				AccountId::from_str("8097c3C354652CB1EEed3E5B65fBa2576470678A").unwrap(),
-				AccountId::from_str("d43593c715fdd31c61141abd04a99fd6822c8558").unwrap()
+				AccountId::from_str("6be02d1d3665660d22ff9624b7be0551ee1ac91b").unwrap()
 			],
 			true,
 		),
