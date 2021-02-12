@@ -8,13 +8,14 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 //use sp_std::prelude::*;
 
-use sp_std::{prelude::*, marker::PhantomData};
+use sp_std::{prelude::*, marker::PhantomData, convert::TryFrom};
 use codec::{Encode, Decode};
 
 use sp_core::{U256, crypto::KeyTypeId, OpaqueMetadata, H160, H256};
 use sp_runtime::{
 	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys,
 	transaction_validity::{TransactionValidity, TransactionSource},
+	Perquintill, FixedPointNumber,
 };
 use sp_runtime::traits::{
 	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, Saturating, AccountIdLookup
@@ -28,25 +29,32 @@ use sp_version::RuntimeVersion;
 use sp_version::NativeVersion;
 use sp_core::crypto::Public;
 
+//pub mod impls;
+//use impls::{LinearWeightToFee};
+
 use pallet_evm::{
 	Account as EVMAccount, EnsureAddressNever, EnsureAddressSame, FeeCalculator, IdentityAddressMapping, Runner
 };
 
 use fp_rpc::TransactionStatus;
-use pallet_transaction_payment::CurrencyAdapter;
+//use pallet_transaction_payment::CurrencyAdapter;
+use pallet_transaction_payment::{Multiplier, TargetedFeeAdjustment, CurrencyAdapter};
+
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
+use smallvec::smallvec;
 pub use sp_runtime::{Permill, Perbill};
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
-	traits::{KeyOwnerProofSystem, Randomness, FindAuthor},
+	traits::{KeyOwnerProofSystem, Randomness, FindAuthor, Get},
 	weights::{
 		Weight, IdentityFee,
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
+		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial
 	},
 	ConsensusEngineId
 };
@@ -120,10 +128,9 @@ pub const MILLISECS_PER_BLOCK: u64 = 6000;
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
-// Time is measured by number of blocks.
-pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
-pub const HOURS: BlockNumber = MINUTES * 60;
-pub const DAYS: BlockNumber = HOURS * 24;
+pub const MINIMUM_PERIOD: u64 = 3000;
+
+pub const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -134,14 +141,14 @@ pub fn native_version() -> NativeVersion {
 	}
 }
 
-const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(65);
 
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
 	pub const BlockHashCount: BlockNumber = 2400;
 	/// We allow for 2 seconds of compute with a 6 second average block time.
 	pub BlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
-		::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
+		::with_sensible_defaults(WEIGHT_PER_SECOND / 2, NORMAL_DISPATCH_RATIO);
 	pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
 		::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
 	pub const SS58Prefix: u8 = 42;
@@ -222,7 +229,7 @@ impl pallet_grandpa::Config for Runtime {
 }
 
 parameter_types! {
-	pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
+	pub const MinimumPeriod: u64 = MINIMUM_PERIOD;
 }
 
 impl pallet_timestamp::Config for Runtime {
@@ -250,15 +257,43 @@ impl pallet_balances::Config for Runtime {
 	type WeightInfo = ();
 }
 
+
+
+pub struct LinearWeightToFee<C>(sp_std::marker::PhantomData<C>);
+
+impl<C> WeightToFeePolynomial for LinearWeightToFee<C> where C: Get<Balance>, {
+	type Balance = Balance;
+
+	fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
+	let coefficient = WeightToFeeCoefficient {
+	coeff_integer: C::get(),
+	coeff_frac: Perbill::zero(),
+	negative: false,
+	degree: 1,
+	};
+
+	// Return a smallvec of coefficients. Order does not need to match degrees
+	// because each coefficient has an explicit degree annotation.
+	smallvec!(coefficient)
+	}
+}
+
 parameter_types! {
-	pub const TransactionByteFee: Balance = 1;
+pub const TransactionByteFee: Balance = 1;
+pub const FeeWeightRatio: Balance = 1_000;
+
+pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
+pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
+pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
 }
 
 impl pallet_transaction_payment::Config for Runtime {
 	type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
 	type TransactionByteFee = TransactionByteFee;
+//	type WeightToFee = LinearWeightToFee<FeeWeightRatio>;
 	type WeightToFee = IdentityFee<Balance>;
 	type FeeMultiplierUpdate = ();
+//	type FeeMultiplierUpdate = TargetedFeeAdjustment<Self, TargetBlockFullness, AdjustmentVariable, MinimumMultiplier>;
 }
 
 impl pallet_sudo::Config for Runtime {
@@ -266,13 +301,30 @@ impl pallet_sudo::Config for Runtime {
 	type Call = Call;
 }
 
-pub struct FixedGasPrice;
+//pub struct FixedGasPrice;
+//
+//impl FeeCalculator for FixedGasPrice {
+//	fn min_gas_price() -> U256 {
+//		// Gas price is always one token per gas.
+//		1.into()
+//	}
+//}
 
-impl FeeCalculator for FixedGasPrice {
-	fn min_gas_price() -> U256 {
-		// Gas price is always one token per gas.
-		1.into()
-	}
+pub const GAS_PER_SECOND: u64 = 40_000_000;
+
+/// Approximate ratio of the amount of Weight per Gas.
+/// u64 works for approximations because Weight is a very small unit compared to gas.
+pub const WEIGHT_PER_GAS: u64 = WEIGHT_PER_SECOND / GAS_PER_SECOND;
+
+pub struct StarfleetGasWeightMapping;
+
+impl pallet_evm::GasWeightMapping for StarfleetGasWeightMapping {
+fn gas_to_weight(gas: u64) -> Weight {
+Weight::try_from((gas as u64).saturating_mul(WEIGHT_PER_GAS)).unwrap_or(Weight::MAX)
+}
+fn weight_to_gas(weight: Weight) -> u64 {
+u64::try_from(weight.wrapping_div(WEIGHT_PER_GAS)).unwrap_or(u64::MAX)
+}
 }
 
 parameter_types! {
@@ -280,8 +332,8 @@ parameter_types! {
 }
 
 impl pallet_evm::Config for Runtime {
-	type FeeCalculator = FixedGasPrice;
-	type GasWeightMapping = ();
+	type FeeCalculator = ();
+	type GasWeightMapping = StarfleetGasWeightMapping;
 	type CallOrigin = EnsureAddressSame;
 	type WithdrawOrigin = EnsureAddressNever<AccountId>;
 	type AddressMapping = IdentityAddressMapping;
@@ -312,7 +364,8 @@ impl<F: FindAuthor<u32>> FindAuthor<H160> for EthereumFindAuthor<F>
 }
 
 parameter_types! {
-	pub BlockGasLimit: U256 = U256::from(u32::max_value());
+//	pub BlockGasLimit: U256 = U256::from(u32::max_value());
+	pub BlockGasLimit: u64 = NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT / WEIGHT_PER_GAS;
 }
 
 impl pallet_ethereum::Config for Runtime {
