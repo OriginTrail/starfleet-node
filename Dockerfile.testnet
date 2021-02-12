@@ -18,4 +18,4 @@ EXPOSE 30333 30334 9933 9944 9615
 
 VOLUME ["/data"]
 
-ENTRYPOINT ["/starfleet/starfleet"]
+ENTRYPOINT ["/starfleet-node"]
