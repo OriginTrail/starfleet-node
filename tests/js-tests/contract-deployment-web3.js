@@ -23,11 +23,12 @@ const deployContract = async (contractName, inputTypes, inputValues) => {
           data: `${bytecode}${parameters}`,
           value: "0x00",
           gasPrice: "01",
-          gas: "6500000",
+          gas: "10000000",
       }, privateKey);
 
       let createReceipt = await web3.eth.sendSignedTransaction(createTransaction.rawTransaction);
       console.log(`${contractName} contract deployed at address ${createReceipt.contractAddress}`);
+      console.log(createReceipt);
 
       const contractInstance = new web3.eth.Contract(abi, createReceipt.contractAddress);
 

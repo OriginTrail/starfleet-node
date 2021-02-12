@@ -37,6 +37,7 @@ use pallet_evm::{
 };
 
 use fp_rpc::TransactionStatus;
+use evm_runtime::Config as EvmConfig;
 //use pallet_transaction_payment::CurrencyAdapter;
 use pallet_transaction_payment::{Multiplier, TargetedFeeAdjustment, CurrencyAdapter};
 
@@ -130,8 +131,6 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
 pub const MINIMUM_PERIOD: u64 = 3000;
 
-pub const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
-
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
@@ -141,14 +140,14 @@ pub fn native_version() -> NativeVersion {
 	}
 }
 
-const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(65);
+const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
 	pub const BlockHashCount: BlockNumber = 2400;
 	/// We allow for 2 seconds of compute with a 6 second average block time.
 	pub BlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
-		::with_sensible_defaults(WEIGHT_PER_SECOND / 2, NORMAL_DISPATCH_RATIO);
+		::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
 	pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
 		::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
 	pub const SS58Prefix: u8 = 42;
@@ -301,16 +300,16 @@ impl pallet_sudo::Config for Runtime {
 	type Call = Call;
 }
 
-//pub struct FixedGasPrice;
-//
-//impl FeeCalculator for FixedGasPrice {
-//	fn min_gas_price() -> U256 {
-//		// Gas price is always one token per gas.
-//		1.into()
-//	}
-//}
+pub struct FixedGasPrice;
 
-pub const GAS_PER_SECOND: u64 = 40_000_000;
+impl FeeCalculator for FixedGasPrice {
+	fn min_gas_price() -> U256 {
+		// Gas price is always one token per gas.
+		1.into()
+	}
+}
+
+pub const GAS_PER_SECOND: u64 = 32_000_000;
 
 /// Approximate ratio of the amount of Weight per Gas.
 /// u64 works for approximations because Weight is a very small unit compared to gas.
@@ -319,20 +318,59 @@ pub const WEIGHT_PER_GAS: u64 = WEIGHT_PER_SECOND / GAS_PER_SECOND;
 pub struct StarfleetGasWeightMapping;
 
 impl pallet_evm::GasWeightMapping for StarfleetGasWeightMapping {
-fn gas_to_weight(gas: u64) -> Weight {
-Weight::try_from((gas as u64).saturating_mul(WEIGHT_PER_GAS)).unwrap_or(Weight::MAX)
-}
-fn weight_to_gas(weight: Weight) -> u64 {
-u64::try_from(weight.wrapping_div(WEIGHT_PER_GAS)).unwrap_or(u64::MAX)
-}
+	fn gas_to_weight(gas: u64) -> Weight {
+		Weight::try_from(gas.saturating_mul(WEIGHT_PER_GAS)).unwrap_or(Weight::MAX)
+	}
+	fn weight_to_gas(weight: Weight) -> u64 {
+		u64::try_from(weight.wrapping_div(WEIGHT_PER_GAS)).unwrap_or(u64::MAX)
+	}
 }
 
 parameter_types! {
     pub const RinkebyChainId: u64 = 42;
 }
 
+static EVM_CONFIG: EvmConfig = EvmConfig {
+	gas_ext_code: 700,
+	gas_ext_code_hash: 700,
+	gas_balance: 700,
+	gas_sload: 800,
+	gas_sstore_set: 20000,
+	gas_sstore_reset: 5000,
+	refund_sstore_clears: 15000,
+	gas_suicide: 5000,
+	gas_suicide_new_account: 25000,
+	gas_call: 700,
+	gas_expbyte: 50,
+	gas_transaction_create: 53000,
+	gas_transaction_call: 21000,
+	gas_transaction_zero_data: 4,
+	gas_transaction_non_zero_data: 16,
+	sstore_gas_metering: true,
+	sstore_revert_under_stipend: true,
+	err_on_call_with_more_gas: false,
+	empty_considered_exists: false,
+	create_increase_nonce: true,
+	call_l64_after_gas: true,
+	stack_limit: 1024,
+	memory_limit: usize::max_value(),
+	call_stack_limit: 1024,
+    // raise create_contract_limit
+	create_contract_limit: None,
+	call_stipend: 2300,
+	has_delegate_call: true,
+	has_create2: true,
+	has_revert: true,
+	has_return_data: true,
+	has_bitwise_shifting: true,
+	has_chain_id: true,
+	has_self_balance: true,
+	has_ext_code_hash: true,
+	estimate: false,
+};
+
 impl pallet_evm::Config for Runtime {
-	type FeeCalculator = ();
+	type FeeCalculator = FixedGasPrice;
 	type GasWeightMapping = StarfleetGasWeightMapping;
 	type CallOrigin = EnsureAddressSame;
 	type WithdrawOrigin = EnsureAddressNever<AccountId>;
@@ -347,6 +385,10 @@ impl pallet_evm::Config for Runtime {
 		pallet_evm_precompile_simple::Identity,
 	);
 	type ChainId = RinkebyChainId;
+	/// EVM config used in the module.
+	fn config() -> &'static EvmConfig {
+		&EVM_CONFIG
+	}
 }
 
 pub struct EthereumFindAuthor<F>(PhantomData<F>);
@@ -364,8 +406,7 @@ impl<F: FindAuthor<u32>> FindAuthor<H160> for EthereumFindAuthor<F>
 }
 
 parameter_types! {
-//	pub BlockGasLimit: U256 = U256::from(u32::max_value());
-	pub BlockGasLimit: u64 = NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT / WEIGHT_PER_GAS;
+	pub BlockGasLimit: U256 = U256::from(u32::max_value());
 }
 
 impl pallet_ethereum::Config for Runtime {

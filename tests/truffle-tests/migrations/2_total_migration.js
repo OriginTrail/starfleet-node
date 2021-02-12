@@ -89,16 +89,16 @@ module.exports = async (deployer, network, accounts) => {
         token = await deployer.deploy(TracToken, accounts[0], accounts[0], accounts[0]);
         await hub.setContractAddress('Token', token.address);
 
-        profile = await deployer.deploy(Profile, hub.address, {gas: 6500000, from: accounts[0]});
+        profile = await deployer.deploy(Profile, hub.address, {gas: 10000000, from: accounts[0]});
         await hub.setContractAddress('Profile', profile.address);
 
-        holding = await deployer.deploy(Holding, hub.address, {gas: 6500000, from: accounts[0]});
+        holding = await deployer.deploy(Holding, hub.address, {gas: 10000000, from: accounts[0]});
         await hub.setContractAddress('Holding', holding.address);
 
         creditorHandler = await deployer.deploy(
             CreditorHandler,
             hub.address,
-            {gas: 7000000, from: accounts[0]},
+            {gas: 10000000, from: accounts[0]},
         );
         await hub.setContractAddress('CreditorHandler', creditorHandler.address);
 

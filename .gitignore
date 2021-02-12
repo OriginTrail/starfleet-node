@@ -3,4 +3,4 @@
 **/*.rs.bk
 tests/**/node_modules
 Cargo.lock
-tests/truffle-tests/build/contracts
+tests/truffle-tests/build/contracts/*

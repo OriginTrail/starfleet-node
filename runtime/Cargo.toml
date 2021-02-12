@@ -16,6 +16,7 @@ serde = { version = "1.0.101", optional = true, features = ["derive"] }
 sha3 = { version = "0.8", default-features = false }
 log = "0.4.8"
 smallvec = "1.4"
+evm-runtime = { version = "0.23.0", default-features = false }
 
 frame-executive = { version = "2.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 frame-support = { version = "2.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
