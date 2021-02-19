@@ -4,3 +4,4 @@
 tests/**/node_modules
 Cargo.lock
 tests/truffle-tests/build/contracts/*
+rust-toolchain
