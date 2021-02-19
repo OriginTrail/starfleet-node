@@ -87,28 +87,28 @@ For each node open a new terminal window and run the following commands from ins
 
 Node 1: 
 ```
-npm run setup -- --configDir=../starfleet-node/ot-node-configs/DCG-config --config=../starfleet-node/ot-node-configs/DCG.json
-npm start -- --configDir=../starfleet-node/ot-node-configs/DCG-config --config=../starfleet-node/ot-node-configs/DCG.json
+npm run setup -- --configDir=../starfleet-node/tests/ot-node-configs/DCG-config --config=../starfleet-node/tests/ot-node-configs/DCG.json
+npm start -- --configDir=../starfleet-node/tests/ot-node-configs/DCG-config --config=../starfleet-node/tests/ot-node-configs/DCG.json
 ```  
 
 Node 2:
 
  ```
-npm run setup -- --configDir=../starfleet-node/ot-node-configs/DHG1-config --config=../starfleet-node/ot-node-configs/DHG1.json
-npm start -- --configDir=../starfleet-node/ot-node-configs/DHG1-config --config=../starfleet-node/ot-node-configs/DHG1.json
+npm run setup -- --configDir=../starfleet-node/tests/ot-node-configs/DHG1-config --config=../starfleet-node/tests/ot-node-configs/DHG1.json
+npm start -- --configDir=../starfleet-node/tests/ot-node-configs/DHG1-config --config=../starfleet-node/tests/ot-node-configs/DHG1.json
 ```
 
 Node 3:
 ```
-npm run setup -- --configDir=../starfleet-node/ot-node-configs/DHG2-config --config=../starfleet-node/ot-node-configs/DHG2.json
-npm start -- --configDir=../starfleet-node/ot-node-configs/DHG2-config --config=../starfleet-node/ot-node-configs/DHG2.json
+npm run setup -- --configDir=../starfleet-node/tests/ot-node-configs/DHG2-config --config=../starfleet-node/tests/ot-node-configs/DHG2.json
+npm start -- --configDir=../starfleet-node/tests/ot-node-configs/DHG2-config --config=../starfleet-node/tests/ot-node-configs/DHG2.json
 ```
 
 Node 4:
   
 ```
-npm run setup -- --configDir=../starfleet-node/ot-node-configs/DHG3-config --config=../starfleet-node/ot-node-configs/DHG3.json
-npm start -- --configDir=../starfleet-node/ot-node-configs/DHG3-config --config=../starfleet-node/ot-node-configs/DHG3.json
+npm run setup -- --configDir=../starfleet-node/tests/ot-node-configs/DHG3-config --config=../starfleet-node/tests/ot-node-configs/DHG3.json
+npm start -- --configDir=../starfleet-node/tests/ot-node-configs/DHG3-config --config=../starfleet-node/tests/ot-node-configs/DHG3.json
 ```
 
 ### Testing dataset replication
