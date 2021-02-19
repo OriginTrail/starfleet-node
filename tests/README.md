@@ -120,6 +120,6 @@ curl -d '{"standard_id": "OT-JSON", "file": "{\"@graph\":[{\"identifiers\":[{\"@
 ```
 Once you see the `Import complete` log line you can start the replication process with the following command
 ```
-curl -d '{"dataset_id": "0x8e43a6b345af96d8e1c23d8885b934f2d0eb3bf5e420a244abc9e2b81a40e481", "holding_time_in_minutes": 5}' -H 'Content-Type: application/json' [http://localhost:8900/api/latest/replicate](http://localhost:8900/api/latest/replicate)
+curl -d '{"dataset_id": "0x8e43a6b345af96d8e1c23d8885b934f2d0eb3bf5e420a244abc9e2b81a40e481", "holding_time_in_minutes": 5}' -H 'Content-Type: application/json' http://localhost:8900/api/latest/replicate
 ```
 After a few minutes, the replication process should be completed with the 3 DH nodes showing that they’ve been chosen for the offer.
