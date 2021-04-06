@@ -5,7 +5,7 @@ Since the two repositories in this guide are dependent on one another, it is rec
 
 ### Starfleet blockchain node setup
 
-The first requirement for testing is running a custom substrate node, one derived from the Moonbeam substrate node, found at [https://github.com/OriginTrail/starfleet-node](https://github.com/OriginTrail/starfleet-node)
+The first requirement for testing is running a custom substrate node, found at [https://github.com/OriginTrail/starfleet-node](https://github.com/OriginTrail/starfleet-node)
 
 Clone the repo using the `feature/builders-demo` branch:
 ```sh
