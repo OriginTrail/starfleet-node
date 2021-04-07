@@ -36,7 +36,7 @@ sc-consensus-manual-seal = { git = "https://github.com/paritytech/substrate.git"
 sp-consensus = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sc-consensus = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sp-timestamp = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
-pallet-evm = {  git = "https://github.com/paritytech/frontier" }
+pallet-evm = { git = "https://github.com/paritytech/frontier" }
 pallet-ethereum = { git = "https://github.com/paritytech/frontier" }
 sc-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sp-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
@@ -46,12 +46,20 @@ sc-basic-authorship = { git = "https://github.com/paritytech/substrate.git", bra
 sp-block-builder = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sc-telemetry = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 
+node-template-runtime = { path = "../runtime", package="starfleet-node", default-features = false, features = ["std"] }
+
 fc-consensus = { git = "https://github.com/paritytech/frontier" }
 fp-consensus = { git = "https://github.com/paritytech/frontier" }
-node-template-runtime = { path = "../runtime", package="starfleet-node" }
 fc-rpc = { git = "https://github.com/paritytech/frontier" }
 fp-rpc = { git = "https://github.com/paritytech/frontier" }
 fc-rpc-core = { git = "https://github.com/paritytech/frontier" }
+fc-db = { git = "https://github.com/paritytech/frontier" }
+fc-mapping-sync = { git = "https://github.com/paritytech/frontier" }
 
 [build-dependencies]
 substrate-build-script-utils = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
+
+[features]
+default = ["aura"]
+aura = ["node-template-runtime/aura"]
+manual-seal = ["node-template-runtime/manual-seal"]
