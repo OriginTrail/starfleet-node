@@ -18,7 +18,7 @@ use sp_runtime::{
 	Perquintill, FixedPointNumber,
 };
 use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, Saturating, AccountIdLookup
+	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, AccountIdLookup
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -61,8 +61,6 @@ pub use frame_support::{
 };
 
 mod account;
-/// Import the template pallet.
-use frame_system::Config;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -328,6 +326,7 @@ impl pallet_evm::GasWeightMapping for StarfleetGasWeightMapping {
 
 parameter_types! {
     pub const RinkebyChainId: u64 = 42;
+	pub BlockGasLimit: U256 = U256::from(u32::max_value());
 }
 
 static EVM_CONFIG: EvmConfig = EvmConfig {
@@ -385,6 +384,8 @@ impl pallet_evm::Config for Runtime {
 		pallet_evm_precompile_simple::Identity,
 	);
 	type ChainId = RinkebyChainId;
+	type BlockGasLimit = BlockGasLimit;
+	type OnChargeTransaction = ();
 	/// EVM config used in the module.
 	fn config() -> &'static EvmConfig {
 		&EVM_CONFIG
@@ -405,15 +406,10 @@ impl<F: FindAuthor<u32>> FindAuthor<H160> for EthereumFindAuthor<F>
 	}
 }
 
-parameter_types! {
-	pub BlockGasLimit: U256 = U256::from(u32::max_value());
-}
-
 impl pallet_ethereum::Config for Runtime {
 	type Event = Event;
 	type FindAuthor = EthereumFindAuthor<Aura>;
 	type StateRoot = pallet_ethereum::IntermediateStateRoot;
-	type BlockGasLimit = BlockGasLimit;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -426,7 +422,7 @@ construct_runtime!(
 		System: frame_system::{Module, Call, Config, Storage, Event<T>},
 		RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
 		Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-		Aura: pallet_aura::{Module, Config<T>, Inherent},
+		Aura: pallet_aura::{Module, Config<T>},
 		Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
 		Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
 		TransactionPayment: pallet_transaction_payment::{Module, Storage},

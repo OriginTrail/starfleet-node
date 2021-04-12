@@ -1,16 +1,9 @@
-//! A collection of node-specific RPC methods.
-//! Substrate provides the `sc-rpc` crate, which defines the core RPC layer
-//! used by Substrate nodes. This file extends those RPC definitions with
-//! capabilities that are specific to this project's runtime configuration.
+use std::sync::Arc;
 
-#![warn(missing_docs)]
-
-//use std::sync::Arc;
-use std::{sync::Arc, fmt};
+use std::collections::BTreeMap;
 use fc_rpc_core::types::{PendingTransactions, FilterPool};
 use sc_consensus_manual_seal::rpc::{ManualSeal, ManualSealApi};
-
-use node_template_runtime::{opaque::Block, AccountId, Balance, Index, TransactionConverter, Hash};
+use node_template_runtime::{Hash, AccountId, Index, opaque::Block, Balance};
 use sp_api::ProvideRuntimeApi;
 use sp_transaction_pool::TransactionPool;
 use sp_blockchain::{Error as BlockChainError, HeaderMetadata, HeaderBackend};
@@ -24,6 +17,8 @@ use sp_runtime::traits::BlakeTwo256;
 use sp_block_builder::BlockBuilder;
 use sc_network::NetworkService;
 use jsonrpc_pubsub::manager::SubscriptionManager;
+use pallet_ethereum::EthereumStorageSchema;
+use fc_rpc::{StorageOverride, SchemaV1Override};
 
 /// Light client extra dependencies.
 pub struct LightDeps<C, F, P> {
@@ -55,6 +50,8 @@ pub struct FullDeps<C, P> {
 	pub pending_transactions: PendingTransactions,
 	/// EthFilterApi pool.
 	pub filter_pool: Option<FilterPool>,
+	/// Backend.
+	pub backend: Arc<fc_db::Backend<Block>>,
 	/// Manual seal command sink
 	pub command_sink: Option<futures::channel::mpsc::Sender<sc_consensus_manual_seal::rpc::EngineCommand<Hash>>>,
 }
@@ -74,7 +71,6 @@ pub fn create_full<C, P, BE>(
 	C::Api: BlockBuilder<Block>,
 	C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
 	C::Api: fp_rpc::EthereumRuntimeRPCApi<Block>,
-	<C::Api as sp_api::ApiErrorExt>::Error: fmt::Debug,
 	P: TransactionPool<Block=Block> + 'static,
 {
 	use substrate_frame_rpc_system::{FullSystem, SystemApi};
@@ -95,6 +91,7 @@ pub fn create_full<C, P, BE>(
 		pending_transactions,
 		filter_pool,
 		command_sink,
+		backend,
 		enable_dev_signer,
 	} = deps;
 
@@ -109,6 +106,11 @@ pub fn create_full<C, P, BE>(
 	if enable_dev_signer {
 		signers.push(Box::new(EthDevSigner::new()) as Box<dyn EthSigner>);
 	}
+	let mut overrides = BTreeMap::new();
+	overrides.insert(
+		EthereumStorageSchema::V1,
+		Box::new(SchemaV1Override::new(client.clone())) as Box<dyn StorageOverride<_> + Send + Sync>
+	);
 	io.extend_with(
 		EthApiServer::to_delegate(EthApi::new(
 			client.clone(),
@@ -117,6 +119,8 @@ pub fn create_full<C, P, BE>(
 			network.clone(),
 			pending_transactions.clone(),
 			signers,
+			overrides,
+			backend,
 			is_authority,
 		))
 	);
