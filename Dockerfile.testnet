@@ -1,7 +1,7 @@
 # Note: This is currently designed to simplify development
 # To get a smaller docker image, there should be 2 images generated, in 2 stages.
 
-FROM rustlang/rust:nightly
+FROM rust
 
 
 ARG PROFILE=release
