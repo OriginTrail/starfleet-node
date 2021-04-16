@@ -1,25 +1,23 @@
 # Note: This is currently designed to simplify development
 # To get a smaller docker image, there should be 2 images generated, in 2 stages.
-
-FROM rust
-
+FROM debian:stretch-slim
 
 ARG PROFILE=release
 
 # Updates core parts
 RUN apt-get update -y && \
-	apt-get install -y cmake pkg-config libssl-dev git gcc build-essential clang libclang-dev
-
-# Install rust wasm. Needed for substrate wasm engine
-RUN rustup target add wasm32-unknown-unknown
+	apt-get install -y cmake pkg-config libssl-dev git gcc build-essential clang libclang-dev curl
 
 # Download Starfleet repo
 RUN git clone https://github.com/OriginTrail/starfleet-node
 WORKDIR /starfleet-node
 
-# Download rust dependencies and build the rust binary
-RUN cargo build "--$PROFILE"
-
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
+	export PATH="$PATH:$HOME/.cargo/bin" && \
+	rustup toolchain install nightly && \
+	rustup target add wasm32-unknown-unknown --toolchain nightly && \
+	rustup default stable && \
+	cargo build "--$PROFILE"
 # 30333 for p2p traffic
 # 9933 for RPC call
 # 9944 for Websocket
