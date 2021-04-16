@@ -18,6 +18,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
 	rustup target add wasm32-unknown-unknown --toolchain nightly && \
 	rustup default stable && \
 	cargo build "--$PROFILE"
+
 # 30333 for p2p traffic
 # 9933 for RPC call
 # 9944 for Websocket
@@ -30,4 +31,4 @@ ENV PROFILE ${PROFILE}
 # The execution will re-compile the project to run it
 # This allows to modify the code and not have to re-compile the
 # dependencies.
-CMD cargo run --bin node-template "--$PROFILE" -- --dev --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --port 30333 --ws-port 9944 --rpc-port 9933 --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --validator --rpc-methods Unsafe --name Bootnode
+CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --port 30333 --ws-port 9944 --rpc-port 9933 --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --validator --rpc-methods Unsafe --name Bootnode
