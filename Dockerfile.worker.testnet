@@ -1,0 +1,33 @@
+# Dockerfile for Starfleet node
+# Note: This is currently designed to simplify development
+
+FROM debian:stretch-slim
+
+ARG PROFILE=release
+
+# Updates core parts
+RUN apt-get update -y && \
+	apt-get install -y cmake pkg-config libssl-dev git gcc build-essential clang libclang-dev curl
+
+# Download Starfleet repo
+RUN git clone https://github.com/OriginTrail/starfleet-node
+WORKDIR /starfleet-node
+
+# Install rust and build node
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
+	export PATH="$PATH:$HOME/.cargo/bin" && \
+	rustup toolchain install nightly && \
+	rustup target add wasm32-unknown-unknown --toolchain nightly && \
+	rustup default stable && \
+	cargo build "--$PROFILE"
+
+# 30333 for p2p traffic
+# 9933 for RPC call
+# 9944 for Websocket
+# 9615 for Prometheus (metrics)
+EXPOSE 30333 9933 9944 9615
+
+ENV PROFILE ${PROFILE}
+
+# Start compiled Starfleet node
+CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --port 30333 --ws-port 9944 --rpc-port 9933 --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --validator --rpc-methods Unsafe --name StarfleetNode --bootnodes /ip4/134.122.75.60/tcp/30333/p2p/12D3KooWKZe4UNdo74V3bJGLmSAxPTxdka747sSi3duAXoqgBSk1
