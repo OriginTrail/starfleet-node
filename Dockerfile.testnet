@@ -30,4 +30,4 @@ EXPOSE 30333 9933 9944 9615
 ENV PROFILE ${PROFILE}
 
 # Start compiled Starfleet bootnode
-CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --port 30333 --ws-port 9944 --rpc-port 9933 --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --validator --rpc-methods Unsafe --name Bootnode
+CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json  --validator --unsafe-ws-external  --unsafe-rpc-external --name StarfleetNode
