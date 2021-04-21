@@ -1,13 +1,16 @@
 # Dockerfile for Starfleet node
 # Note: This is currently designed to simplify development
 
-FROM debian:stretch-slim
+FROM debian:stable
 
 ARG PROFILE=release
 
+# show backtraces
+ENV RUST_BACKTRACE 1
+
 # Updates core parts
 RUN apt-get update -y && \
-	apt-get install -y cmake pkg-config libssl-dev git gcc build-essential clang libclang-dev curl llvm-dev
+	apt-get install -y cmake pkg-config libssl-dev git gcc build-essential clang libclang-3.9-dev curl
 
 # Download Starfleet repo
 RUN git clone https://github.com/OriginTrail/starfleet-node
