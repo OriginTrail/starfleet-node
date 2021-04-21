@@ -33,4 +33,4 @@ EXPOSE 30333 9933 9944 9615
 ENV PROFILE ${PROFILE}
 
 # Start compiled Starfleet node
-CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --validator --unsafe-ws-external --rpc-cors all --unsafe-rpc-external --rpc-methods=Unsafe --name StarfleetNode --bootnodes /ip4/134.122.75.60/tcp/30333/p2p/12D3KooWSnhfq5Cx4BMuXVq7N93KFZztNHPwNpF1EmGb9Vikrffy
+CMD ./target/release/node-template --base-path /tmp/node --chain ./starfleetAlphaTestnetSpecRaw.json --validator --unsafe-ws-external --rpc-cors all --unsafe-rpc-external --rpc-methods=Unsafe --name StarfleetNode --bootnodes /ip4/134.122.75.60/tcp/30333/p2p/12D3KooWBQgtbwi11tXyS9QDBczVEhy8vCxPi8H5NgGerxdu6q9Q
