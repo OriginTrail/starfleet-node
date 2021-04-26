@@ -1,0 +1,14 @@
+{
+  "wallets": [
+    {
+      "address":"",
+      "privatekey":""
+    }
+  ],
+  "nodes": [
+    {
+      "name":"",
+      "url": ""
+    }
+  ]
+}
