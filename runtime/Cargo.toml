@@ -1,5 +1,5 @@
 [package]
-authors = ['TraceLabs', 'Substrate DevHub']
+authors = ['TraceLabs']
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
