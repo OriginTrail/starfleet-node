@@ -34,8 +34,7 @@ ENV PROFILE ${PROFILE}
 
 # Start compiled Starfleet bootnode
 CMD ./target/release/node-template --base-path /tmp/node \
-    --chain ./starfleetLiveSpecRaw.json  --validator \
-    --rpc-methods=Unsafe --unsafe-ws-external \
-    --rpc-cors all --unsafe-rpc-external --name StarfleetNode \
-    ${BOOTNODES}
+    --chain ./starfleetLiveSpecRaw.json --name StarfleetNode \
+    ${ADDITIONAL_PARAMS}
+
 
