@@ -1,0 +1,27 @@
+[package]
+name = "fc-consensus"
+version = "1.0.1-dev"
+authors = ["Parity Technologies <admin@parity.io>"]
+description = "Frontier consensus for substrate"
+edition = "2018"
+license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
+repository = "https://github.com/paritytech/frontier/"
+
+[dependencies]
+codec = { package = "parity-scale-codec", version = "2.0.0", features = ["derive"] }
+sp-core =  "3.0.0"
+sp-blockchain = "3.0.0"
+sp-runtime = "3.0.0"
+sp-api = "3.0.0"
+sc-client-api = "3.0.0"
+sp-block-builder = "3.0.0"
+sp-inherents ="3.0.0"
+fp-consensus = "1.0.0"
+fp-rpc = '1.0.0'
+fc-db = '1.0.0'
+sp-consensus = "0.9.0"
+log = "0.4.8"
+futures = { version = "0.3.1", features = ["compat"] }
+sp-timestamp = "3.0.0"
+derive_more = "0.99.2"
+prometheus-endpoint = { version = "0.9.0", package = "substrate-prometheus-endpoint", git = "https://github.com/paritytech/substrate.git", branch = "frontier"}
