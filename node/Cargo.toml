@@ -1,11 +1,11 @@
 [package]
-authors = ['Substrate DevHub']
+authors = ['TraceLabs']
 build = 'build.rs'
 description = 'A fresh FRAME-based Substrate node, ready for hacking.'
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
-name = 'node-template'
+name = 'starfleet-node'
 repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
 version = '3.0.0'
 
@@ -16,6 +16,7 @@ structopt = "0.3.8"
 jsonrpc-core = "15.1.0"
 jsonrpc-pubsub = "15.1.0"
 ethereum-types = "0.11.0"
+serde_json = "1"
 
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
 
@@ -53,7 +54,7 @@ sc-telemetry = '3.0.0'
 ethereum = { version = "0.7.1", features = ["with-codec"] }
 
 
-node-template-runtime = { path = "../runtime", package="starfleet-node", default-features = false, features = ["std"] }
+starfleet-node-runtime = { path = "../runtime", package="starfleet-node-runtime", default-features = false, features = ["std"] }
 
 fc-consensus = '1.0.0'
 fp-consensus = '1.0.0'
@@ -71,5 +72,5 @@ substrate-build-script-utils = '3.0.0'
 
 [features]
 default = ["aura"]
-aura = ["node-template-runtime/aura"]
-manual-seal = ["node-template-runtime/manual-seal"]
+aura = ["starfleet-node-runtime/aura"]
+manual-seal = ["starfleet-node-runtime/manual-seal"]

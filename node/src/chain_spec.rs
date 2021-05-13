@@ -1,5 +1,5 @@
 use sp_core::{H160, U256, Pair, Public, sr25519};
-use node_template_runtime::{
+use starfleet_node_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, EVMConfig, EthereumConfig
 };
@@ -9,6 +9,7 @@ use sp_runtime::traits::{Verify, IdentifyAccount};
 use sc_service::ChainType;
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use serde_json as json;
 
 // The URL for the telemetry server.
 // const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
@@ -39,6 +40,14 @@ pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 		get_from_seed::<GrandpaId>(s),
 	)
 }
+
+const DEFAULT_PROPERTIES_TESTNET: &str = r#"
+{
+"tokenSymbol": "TTRAC",
+"tokenDecimals": 18,
+"ss58Format": 42
+}
+"#;
 
 pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or("Development wasm binary not available".to_string())?;
@@ -73,7 +82,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		// Protocol ID
 		None,
 		// Properties
-		None,
+		Some(json::from_str(DEFAULT_PROPERTIES_TESTNET).unwrap()),
 		// Extensions
 		None,
 	))
@@ -121,7 +130,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// Protocol ID
 		None,
 		// Properties
-		None,
+		Some(json::from_str(DEFAULT_PROPERTIES_TESTNET).unwrap()),
 		// Extensions
 		None,
 	))
