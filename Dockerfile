@@ -33,7 +33,7 @@ EXPOSE 30333 9933 9944 9615
 ENV PROFILE ${PROFILE}
 
 # Start compiled Starfleet bootnode
-CMD ./target/release/node-template --base-path /tmp/node \
+CMD ./target/release/starfleet-node --base-path /tmp/node \
     --chain ./starfleetLiveSpecRaw.json --name StarfleetNode \
     ${ADDITIONAL_PARAMS}
 
