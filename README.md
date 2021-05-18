@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/OriginTrail/starfleet-node/develop/substrate_level_badges/SBP_M1.png" alt="drawing" width="200"/>
+<img src="https://raw.githubusercontent.com/OriginTrail/starfleet-node/develop/substrate_level_badges/SBP_M1.png" alt="drawing" width="400"/>
 
 # Starfleet Node
 
