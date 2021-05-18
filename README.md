@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/OriginTrail/starfleet-node/develop/substrate_level_badges/SBP_M1.png" alt="drawing" width="200"/>
+
 # Starfleet Node
 
 A FRAME-based starfleet node outlined in [OT-RFC-07](https://github.com/OriginTrail/OT-RFC-repository/blob/main/RFCs/OT-RFC-07%20Multichain%20OriginTrail%20Decentralized%20Network%20-%20Starfleet%20stage.pdf).
