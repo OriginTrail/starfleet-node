@@ -13,15 +13,17 @@ process.on('message', async(data) => {
         console.log(`${new Date()} - Balance of ${addressFrom} is ${balance}`);
         balance = await web3.eth.getBalance(addressTo);
         console.log(`${new Date()} - Balance of ${addressTo} is ${balance}`);
-        const val = Math.floor(Math.random() * 100000);
+        const value = Math.floor(Math.random() * 10);
+        const val = web3.utils.toWei(value.toString(), 'ether');
         console.log(`${new Date()} - Attempting to make transaction from ${addressFrom} to ${addressTo} (amount: ${val})`);
         const createTransaction = await web3.eth.accounts.signTransaction(
             {
                 from: addressFrom,
                 to: addressTo,
                 value: val,
-                gasPrice: "0x01",
-                gas: "0x1000000",
+                gasPrice: 1,
+                gas: 21000,
+                chainId: 2160
             },
             privateKey
         );

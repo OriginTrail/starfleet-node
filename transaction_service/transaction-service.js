@@ -41,7 +41,7 @@ async function main() {
             workerFork.kill();
         });
 
-        await sleepForMilliseconds(5 * 1000);
+        await sleepForMilliseconds(10 * 1000);
 
     } while (true);
 
